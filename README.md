@@ -18,43 +18,44 @@ This test helps identify Xray performance bottlenecks and establish baseline met
 
 ---
 
-## ⚙️ Prerequisites
+## 🔐 Environment Setup
 
-1. **JFrog Trial Account**
-
-   * Sign up: [https://jfrog.com/start-free/trialOptions](https://jfrog.com/start-free/trialOptions)
-   * Retrieve your Platform ID (e.g. `yourorg.jfrog.io` → `yourorg`)
-
-2. **Create Admin User**
-
-   * Log into the platform → Administration → User Management → Create new user (Admin role)
-
-3. **Docker** installed on the machine (for pushing images)
-
-4. **Python 3.7+** and **Locust** installed:
+1. **Create a `.env` file in your project root**:
 
    ```bash
-   pip install -r requirements.txt
+   cp .env.example .env
    ```
+
+2. **Edit `.env` with your JFrog credentials and platform ID**:
+
+   ```env
+   JFROG_USERNAME=your_admin_user
+   JFROG_PASSWORD=your_password
+   JFROG_PLATFORM_ID=yourplatformid
+   ```
+
+3. **Run the test using the script**:
+
+   ```bash
+   bash run.sh
+   ```
+
+> ✅ Note: The `.env` file is excluded from Git and should not be committed.
 
 ---
 
 ## 🚀 How to Run the Test
 
-### 1. Set Environment Variables
-
-Create a `.env` file or export manually:
+### 1. Install Python dependencies
 
 ```bash
-export JFROG_USERNAME=admin_user
-export JFROG_PASSWORD=your_password
-export JFROG_PLATFORM_ID=yourplatformid
+pip install -r requirements.txt
 ```
 
 ### 2. Run Single-Node Test
 
 ```bash
-locust -f locustfile.py --headless -u 10 -r 2 -t 1m --csv=reports/report
+python -m locust -f locustfile.py --headless -u 10 -r 2 -t 1m --csv=reports/report --host=https://$JFROG_PLATFORM_ID.jfrog.io
 ```
 
 ### 3. Run Distributed Test (Optional)
@@ -62,13 +63,13 @@ locust -f locustfile.py --headless -u 10 -r 2 -t 1m --csv=reports/report
 **Master Node**
 
 ```bash
-locust -f locustfile.py --master --csv=reports/report
+python -m locust -f locustfile.py --master --csv=reports/report
 ```
 
 **Worker Nodes**
 
 ```bash
-locust -f locustfile.py --worker --master-host=<master-ip>
+python -m locust -f locustfile.py --worker --master-host=<master-ip>
 ```
 
 ---
@@ -94,6 +95,7 @@ These can be imported into Excel or plotted with matplotlib.
 ├── run.sh
 ├── .env.example
 ├── README.md
+├── REPORT.md
 └── reports/
 ```
 
@@ -110,17 +112,20 @@ These can be imported into Excel or plotted with matplotlib.
 ## 📦 Sample Test Command
 
 ```bash
-locust -f locustfile.py --headless -u 20 -r 5 -t 2m --csv=reports/loadtest
+python -m locust -f locustfile.py --headless -u 20 -r 5 -t 2m --csv=reports/loadtest --host=https://$JFROG_PLATFORM_ID.jfrog.io
 ```
 
 ---
 
 ## 📘 See Also
 
-* [REPORCT.md](REPORT.md) – JFrog Xray Performance Test Report
+* [REPORT.md](REPORT.md) – Performance test results, metrics, and analysis
+* [locustfile.py](locustfile.py) – Load test logic and REST API calls
 
-## 📬 Questions?
+---
 
-Reach out at \[[your\_email@example.com](mailto:your_email@example.com)]
+## 📬 Contact
+
+Created by \[Anmol Rai] for the JFrog Performance Engineer Home Assignment.
 
 Happy Testing! 🎯
