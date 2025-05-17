@@ -1,13 +1,12 @@
-# locustfile.py
 from locust import HttpUser, task, between
 import base64
 import os
 import json
 import subprocess
 import logging
-from datetime import datetime
+import time
+from datetime import datetime, timezone
 
-# Configurable environment variables
 USERNAME = os.getenv("JFROG_USERNAME")
 PASSWORD = os.getenv("JFROG_PASSWORD")
 PLATFORM_ID = os.getenv("JFROG_PLATFORM_ID")
@@ -17,7 +16,7 @@ TAG = os.getenv("DOCKER_IMAGE_TAG", "3.9")
 
 class JFrogXrayUser(HttpUser):
     wait_time = between(1, 3)
-    base_url = f"https://{PLATFORM_ID}.jfrog.io"
+    host = f"https://{PLATFORM_ID}.jfrog.io"
 
     def on_start(self):
         self.auth_header = self._generate_auth_header()
@@ -41,7 +40,7 @@ class JFrogXrayUser(HttpUser):
         self.get_violations()
 
     def create_repository(self):
-        url = f"{self.base_url}/artifactory/api/repositories/{REPO_NAME}"
+        url = f"{self.host}/artifactory/api/repositories/{REPO_NAME}"
         payload = {
             "key": REPO_NAME,
             "packageType": "docker",
@@ -49,7 +48,7 @@ class JFrogXrayUser(HttpUser):
             "xrayIndex": True
         }
         with self.client.put(url, headers=self.headers, json=payload, name="Create Repository", catch_response=True) as response:
-            if response.status_code == 200 or "already exists" in response.text:
+            if response.status_code == 200 or response.status_code == 409:
                 response.success()
             else:
                 response.failure(response.text)
@@ -64,7 +63,7 @@ class JFrogXrayUser(HttpUser):
             logging.error("Docker push failed: %s", e)
 
     def create_policy(self):
-        url = f"{self.base_url}/xray/api/v2/policies"
+        url = f"{self.host}/xray/api/v2/policies"
         payload = {
             "name": "sec_policy_1",
             "description": "High severity CVEs",
@@ -76,10 +75,14 @@ class JFrogXrayUser(HttpUser):
                 "priority": 1
             }]
         }
-        self.client.post(url, headers=self.headers, json=payload, name="Create Policy")
+        with self.client.post(url, headers=self.headers, json=payload, name="Create Policy", catch_response=True) as response:
+            if response.status_code == 200 or response.status_code == 409:
+                response.success()
+            else:
+                response.failure(response.text)
 
     def create_watch(self):
-        url = f"{self.base_url}/xray/api/v2/watches"
+        url = f"{self.host}/xray/api/v2/watches"
         payload = {
             "general_data": {
                 "name": "watch_1",
@@ -96,34 +99,41 @@ class JFrogXrayUser(HttpUser):
             },
             "assigned_policies": [{"name": "sec_policy_1", "type": "security"}]
         }
-        self.client.post(url, headers=self.headers, json=payload, name="Create Watch")
+        with self.client.post(url, headers=self.headers, json=payload, name="Create Watch", catch_response=True) as response:
+            if response.status_code == 200 or response.status_code == 409:
+                response.success()
+            else:
+                response.failure(response.text)
 
     def apply_watch(self):
-        url = f"{self.base_url}/xray/api/v1/applyWatch"
-        now = datetime.utcnow()
+        url = f"{self.host}/xray/api/v1/applyWatch"
+        now = datetime.now(timezone.utc).isoformat()
         payload = {
             "watch_names": ["watch_1"],
             "date_range": {
-                "start_date": now.isoformat() + "Z",
-                "end_date": now.isoformat() + "Z"
+                "start_date": now,
+                "end_date": now
             }
         }
         self.client.post(url, headers=self.headers, json=payload, name="Apply Watch")
 
     def check_scan_status(self):
-        url = f"{self.base_url}/xray/api/v1/artifact/status"
+        url = f"{self.host}/xray/api/v1/artifact/status"
         payload = {
             "repo": REPO_NAME,
             "path": f"{IMAGE_NAME}/{TAG}/manifest.json"
         }
-        with self.client.post(url, headers=self.headers, json=payload, name="Check Scan Status", catch_response=True) as response:
-            if response.status_code == 200 and '"status": "DONE"' in response.text:
-                response.success()
-            else:
-                response.failure(response.text)
+        for _ in range(10):
+            with self.client.post(url, headers=self.headers, json=payload, name="Check Scan Status", catch_response=True) as response:
+                if '"status": "DONE"' in response.text:
+                    response.success()
+                    return
+                else:
+                    response.failure("Scan not done yet")
+            time.sleep(3)
 
     def get_violations(self):
-        url = f"{self.base_url}/xray/api/v1/violations"
+        url = f"{self.host}/xray/api/v1/violations"
         payload = {
             "filters": {
                 "watch_name": "watch_1",
