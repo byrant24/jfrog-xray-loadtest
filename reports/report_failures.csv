@@ -1,0 +1,3 @@
+Method,Name,Error,Occurrences
+POST,Check Scan Status,CatchResponseError('Scan not done yet'),110
+PUT,Create Repository,"CatchResponseError('{\n  ""errors"" : [ {\n    ""status"" : 400,\n    ""message"" : ""error when validating repository name: docker-local : Case insensitive repository key already exists""\n  } ]\n}')",20
