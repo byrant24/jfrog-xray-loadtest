@@ -1,10 +1,36 @@
 # 📊 JFrog Xray Performance Test Report
 
-📄 **[Back to Project Overview](README.md)**
+📄 [**Back to Project Overview**](README.md)
 
 ## 🔍 Objective
 
 Evaluate the performance and stability of JFrog Xray's scanning pipeline using Locust. The test simulates concurrent users performing repository creation, image pushing, and scan validation via Xray APIs.
+
+---
+
+## 🔐 Environment Setup
+
+1. **Create a `.env` file in your project root**:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Edit `.env` with your JFrog credentials and platform ID**:
+
+   ```env
+   JFROG_USERNAME=your_admin_user
+   JFROG_PASSWORD=your_password
+   JFROG_PLATFORM_ID=yourplatformid
+   ```
+
+3. **Run the test using the script**:
+
+   ```bash
+   bash run.sh
+   ```
+
+> ✅ Note: The `.env` file is excluded from Git and should not be committed.
 
 ---
 
@@ -109,6 +135,12 @@ All located under the `/reports` directory:
 
 * [README.md](README.md) – Project setup, architecture, and execution instructions
 * [locustfile.py](locustfile.py) – Locust user class and task logic
+
+## 📘 See Also
+
+* [README.md](README.md) – Project setup, architecture, and execution instructions
+* [locustfile.py](locustfile.py) – Locust user class and task logic
+* [REPORT.md](REPORT.md) – Detailed analysis, results, and performance insights
 
 ## 📬 Contact
 
