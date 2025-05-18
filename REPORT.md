@@ -144,7 +144,7 @@ All located under the `/reports` directory:
 
 ## 📬 Contact
 
-Created by \[Anmol Rai] for the JFrog Performance Engineer Home Assignment.
+Created for the JFrog Performance Engineer Home Assignment.
 
 ---
 
