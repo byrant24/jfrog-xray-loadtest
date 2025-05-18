@@ -126,6 +126,6 @@ python -m locust -f locustfile.py --headless -u 20 -r 5 -t 2m --csv=reports/load
 
 ## 📬 Contact
 
-Created by \[Anmol Rai] for the JFrog Performance Engineer Home Assignment.
+Created for the JFrog Performance Engineer Home Assignment.
 
 Happy Testing! 🎯
