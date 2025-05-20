@@ -55,21 +55,27 @@ python -m locust -f locustfile.py \
   --host=https://trialb8lcqs.jfrog.io
 ```
 
----
+## Response Time Percentiles (Approximated)
 
-## 📈 Summary Metrics
+| Type | Name | # reqs | # fails | 50% | 66% | 75% | 80% | 90% | 95% | 98% | 99% | 99.9% | 99.99% | 100% |
+|------|------|--------|---------|-----|-----|-----|-----|-----|-----|-----|-----|-------|--------|------|
+| POST | Apply Watch | 117 | 0 | 370 | 370 | 370 | 370 | 380 | 380 | 380 | 380 | 400 | 400 | 400 |
+| POST | Create Policy | 117 | 0 | 370 | 370 | 370 | 370 | 380 | 380 | 390 | 390 | 400 | 400 | 400 |
+| PUT  | Create Repository | 135 | 0 | 380 | 380 | 380 | 380 | 1500 | 1500 | 1600 | 1600 | 1600 | 1600 | 1600 |
+| POST | Create Watch | 117 | 0 | 370 | 370 | 370 | 370 | 380 | 380 | 380 | 380 | 380 | 380 | 380 |
+| POST | Trigger Scan | 234 | 0 | 370 | 370 | 370 | 370 | 380 | 380 | 380 | 380 | 390 | 390 | 390 |
+|      | **Aggregated** | 720 | — | 370 | 370 | 370 | 380 | 380 | 380 | 1500 | 1500 | 1600 | 1600 | 1600 |
 
-| Endpoint               | Requests | Failures | Failure %  | Avg Resp Time (ms) |
-| ---------------------- | -------- | -------- | ---------- | ------------------ |
-| PUT Create Repository  | 40       | 1        | 2.50%      | 362                |
-| POST Create Policy     | 30       | 29       | 96.67%     | 240                |
-| POST Create Watch      | 30       | 29       | 96.67%     | 253                |
-| POST Apply Watch       | 30       | 0        | 0%         | 244                |
-| POST Check Scan Status | 30       | 30       | 100%       | 260                |
-| POST Get Violations    | 30       | 0        | 0%         | 687                |
-| **Total**              | **190**  | **89**   | **46.84%** | —                  |
+## Summary Table
 
----
+| Type | Name | # reqs | # fails | Avg | Min | Max | Med | req/s | failures/s |
+|------|------|--------|---------|-----|-----|-----|-----|--------|-------------|
+| POST | Apply Watch | 117 | 117 (100.00%) | 373 | 371 | 395 | 371 | 0.98 | 0.98 |
+| POST | Create Policy | 117 | 0 (0.00%) | 374 | 371 | 397 | 371 | 0.98 | 0.00 |
+| PUT  | Create Repository | 135 | 0 (0.00%) | 547 | 371 | 1596 | 380 | 1.13 | 0.00 |
+| POST | Create Watch | 117 | 0 (0.00%) | 373 | 370 | 383 | 370 | 0.98 | 0.00 |
+| POST | Trigger Scan | 234 | 234 (100.00%) | 373 | 371 | 394 | 371 | 1.96 | 1.96 |
+|      | **Aggregated** | 720 | 351 (48.75%) | 406 | 370 | 1596 | 370 | 6.02 | 2.93 |
 
 ## ❌ Error Analysis
 
